@@ -62,7 +62,11 @@ def get_youtube_url(query):
         videos_search = VideosSearch(query, limit=1)
         results = videos_search.result()
         if results and "result" in results and len(results["result"]) > 0:
-            return results["result"][0]["link"]
+            link = results["result"][0]["link"]
+            # convert standard YouTube link into embed link
+            if "watch?v=" in link:
+                link = link.replace("watch?v=", "embed/")
+            return link
         return None
     except Exception as e:
         st.error(f"Error while searching: {e}")
@@ -96,3 +100,4 @@ if st.button("✨ Show Me Something Relaxing"):
         st.write(" Great job! Feeling a little calmer?")
 
 st.markdown("---")
+
