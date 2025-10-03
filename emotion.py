@@ -1,20 +1,19 @@
 import streamlit as st
 from youtubesearchpython import VideosSearch
-import time
 
 relaxation_tips = {
     "sadness": {
-        "message": " Hey, If you're feeling down...or lonely. Let's take a moment to slow down and breathe.",
+        "message": "Hey, If you're feeling down...or lonely. Let's take a moment to slow down and breathe.",
         "suggestions": [
-            "Write down 3 small things you're grateful for today.Forget the negative thoughts",
+            "Write down 3 small things you're grateful for today.",
             "Try a 5-minute deep breathing exercise.",
             "Go outside and get some sunlight."
         ]
     },
     "anger": {
-        "message": " It’s okay to feel angry. Its a part of being a human. Don't worry. Let's cool off together.",
+        "message": "It’s okay to feel angry. It's part of being human. Let's cool off together.",
         "suggestions": [
-            "You can try to forget about it. Just let it be.Understood?",
+            "Try to let it go — not everything needs your energy.",
             "Do some light stretching or a short walk.",
             "Write out what's making you angry and then tear it up."
         ]
@@ -28,17 +27,17 @@ relaxation_tips = {
         ]
     },
     "joy": {
-        "message": "Damn,That's wonderful! Let's celebrate your good mood!",
+        "message": "That's wonderful! Let's celebrate your good mood!",
         "suggestions": [
             "Dance to your favorite song!",
             "Share your joy with someone.",
-            "You should treat yourself with something you like."
+            "Treat yourself with something you like."
         ]
     },
     "neutral": {
-        "message": " Let’s take a mindful moment for yourself.",
+        "message": "Let’s take a mindful moment for yourself.",
         "suggestions": [
-            "You wanna maybe try stretching your neck and shoulders.",
+            "Stretch your neck and shoulders.",
             "Take a few slow breaths.",
             "Plan one simple, positive goal for today."
         ]
@@ -48,22 +47,21 @@ relaxation_tips = {
 st.set_page_config(page_title="AI Relaxation Companion", page_icon="🎵", layout="centered")
 
 st.title("🌸 AI Relaxation Companion")
-st.write("Let’s find something that helps you feel calm and cared for 💚")
+st.write("Tell me how you feel and what song you’d like, and I’ll make this moment calmer for you 💚")
 
 emotion = st.selectbox("How are you feeling right now?", list(relaxation_tips.keys()))
 
 song_name = st.text_input(
-    "🎧 What song would you like to listen to?",
+    "🎧 Type a song you want to listen to:",
     placeholder="e.g., Perfect by Ed Sheeran"
 )
 
-def get_youtube_url(query):
+def get_youtube_embed(query):
     try:
         videos_search = VideosSearch(query, limit=1)
         results = videos_search.result()
         if results and "result" in results and len(results["result"]) > 0:
             link = results["result"][0]["link"]
-            # convert standard YouTube link into embed link
             if "watch?v=" in link:
                 link = link.replace("watch?v=", "embed/")
             return link
@@ -72,32 +70,21 @@ def get_youtube_url(query):
         st.error(f"Error while searching: {e}")
         return None
 
-if st.button("✨ Show Me Something Relaxing"):
-    tip = relaxation_tips.get(emotion)
-
-    st.subheader(tip["message"])
+if song_name:
+    st.subheader(relaxation_tips[emotion]["message"])
     st.write("### 🌿 Here are some ideas you can try:")
-    for s in tip["suggestions"]:
+    for s in relaxation_tips[emotion]["suggestions"]:
         st.write(f"- {s}")
 
-    if song_name:
-        with st.spinner(f"Searching YouTube for '{song_name}'..."):
-            video_url = get_youtube_url(song_name)
-            time.sleep(1)
-        if video_url:
-            st.success("Found your song! 🎵")
-            st.video(video_url)
-        else:
-            st.warning("Sorry, couldn't find that song. Try another title?")
+    video_url = get_youtube_embed(song_name)
+    if video_url:
+        st.write("### 🎵 Here’s your song:")
+        st.markdown(
+            f'<iframe width="560" height="315" src="{video_url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',
+            unsafe_allow_html=True
+        )
     else:
-        st.info("You didn’t enter a song. Maybe try adding one!")
-
-    st.write("###  Let's take a short breathing exercise:")
-    with st.empty():
-        for msg, secs in [("Inhale (4s)...", 4), ("Hold (7s)...", 7), ("Exhale (8s)...", 8)]:
-            st.write(msg)
-            time.sleep(secs)
-        st.write(" Great job! Feeling a little calmer?")
+        st.warning("Sorry, I couldn't find that song. Try another title!")
 
 st.markdown("---")
-
+st.caption("Built with Streamlit 💚")
