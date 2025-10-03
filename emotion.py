@@ -2,7 +2,6 @@ import streamlit as st
 from youtubesearchpython import VideosSearch
 import time
 
-
 relaxation_tips = {
     "sadness": {
         "message": " Hey, If you're feeling down...or lonely. Let's take a moment to slow down and breathe.",
@@ -46,34 +45,32 @@ relaxation_tips = {
     }
 }
 
-
 st.set_page_config(page_title="AI Relaxation Companion", page_icon="🎵", layout="centered")
 
 st.title("🌸 AI Relaxation Companion")
 st.write("Let’s find something that helps you feel calm and cared for 💚")
 
-
 emotion = st.selectbox("How are you feeling right now?", list(relaxation_tips.keys()))
-
 
 song_name = st.text_input(
     "🎧 What song would you like to listen to?",
     placeholder="e.g., Perfect by Ed Sheeran"
 )
 
-
 def get_youtube_url(query):
-    videos_search = VideosSearch(query, limit=1)
-    results = videos_search.result()
-    if results["result"]:
-        return results["result"][0]["link"]
-    return None
-
+    try:
+        videos_search = VideosSearch(query, limit=1)
+        results = videos_search.result()
+        if results and "result" in results and len(results["result"]) > 0:
+            return results["result"][0]["link"]
+        return None
+    except Exception as e:
+        st.error(f"Error while searching: {e}")
+        return None
 
 if st.button("✨ Show Me Something Relaxing"):
     tip = relaxation_tips.get(emotion)
 
- 
     st.subheader(tip["message"])
     st.write("### 🌿 Here are some ideas you can try:")
     for s in tip["suggestions"]:
